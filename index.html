@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>皇后的后花园 | The Queen's Garden</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f7f9f4; /* Rice paper white */
+            --ink-color: #2c3e50;
+            --accent-green: #6a8c6d; /* Bamboo green */
+            --accent-pink: #eecbc8; /* Pale peach */
+            --border-color: #8c9e8e;
+        }
+
+        body {
+            font-family: 'ZCOOL XiaoWei', serif;
+            background-color: var(--bg-color);
+            background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M10 10c10 10 20 0 30 10s10 20 0 30" stroke="%23e0e5db" fill="none" stroke-width="2"/%3E%3C/svg%3E');
+            color: var(--ink-color);
+            margin: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Water Ink Overlay */
+        .ink-stain {
+            position: fixed;
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(106,140,109,0.2) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: -1;
+            animation: breathe 8s infinite ease-in-out;
+        }
+        
+        .ink-stain-2 {
+            top: auto;
+            bottom: -100px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(238,203,200,0.3) 0%, rgba(255,255,255,0) 70%);
+            animation: breathe 10s infinite ease-in-out reverse;
+        }
+
+        header {
+            text-align: center;
+            margin-top: 5rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .seal {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #b22222;
+            color: #b22222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.5rem;
+            border-radius: 4px;
+            margin: 0 auto 1rem;
+            opacity: 0.8;
+        }
+
+        h1 {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 4rem;
+            margin: 0;
+            letter-spacing: 0.5rem;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+            background: linear-gradient(to bottom, #2c3e50, #556b2f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--accent-green);
+            margin-top: 1rem;
+            letter-spacing: 0.2rem;
+            border-top: 1px solid var(--accent-green);
+            border-bottom: 1px solid var(--accent-green);
+            display: inline-block;
+            padding: 0.5rem 2rem;
+        }
+
+        .main-content {
+            width: 100%;
+            max-width: 900px;
+            padding: 2rem;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid #dcdcdc;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 2px;
+            position: relative;
+            transition: all 0.5s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 25px rgba(106,140,109,0.2);
+            border-color: var(--accent-green);
+        }
+
+        /* Vertical Text for Card Titles */
+        .card h2 {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2rem;
+            color: var(--ink-color);
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 0.5rem;
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        .card-content {
+            margin-right: 3rem; /* Make space for vertical title */
+            text-align: left;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .circle-frame {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-green);
+            margin-bottom: 1rem;
+            overflow: hidden;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .circle-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: sepia(30%);
+            transition: filter 0.3s;
+        }
+        
+        .circle-frame:hover img {
+            filter: none;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 3rem;
+            color: #999;
+            font-size: 0.9rem;
+            text-align: center;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="20" viewBox="0 0 100 20" preserveAspectRatio="none"><path d="M0 20 Q 50 0 100 20" stroke="%236a8c6d" fill="none" stroke-width="1" opacity="0.3"/></svg>') no-repeat top center;
+            background-size: 100% 20px;
+            width: 100%;
+        }
+
+        /* Animation: Falling Petals */
+        .petal {
+            position: fixed;
+            top: -10px;
+            width: 15px;
+            height: 15px;
+            background: #ffecf2;
+            border-radius: 15px 0 15px 0;
+            opacity: 0.6;
+            z-index: 100;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translate(100px, 100vh) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.2; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+        
+        /* Mobile adjustment */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.5rem; }
+            .card h2 { font-size: 1.5rem; right: 0.5rem; }
+            .card-content { margin-right: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="ink-stain"></div>
+<div class="ink-stain ink-stain-2"></div>
+
+<header>
+    <div class="seal">皇后</div>
+    <h1>皇后的后花园</h1>
+    <div class="subtitle">清风徐来 · 水波不兴</div>
+</header>
+
+<main class="main-content">
+    <div class="card">
+        <h2>闲情雅趣</h2>
+        <div class="card-content">
+            <div class="circle-frame">
+                <!-- Placeholder for image -->
+                <div style="width:100%;height:100%;background:#e0e5db;"></div>
+            </div>
+            <p>半盏清茶，一卷诗书。<br>
+            不论世间纷扰，<br>
+            只愿岁月静好。</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>锦衣华裳</h2>
+        <div class="card-content">
+            <div class="circle-frame">
+                 <!-- Placeholder for image -->
+                 <div style="width:100%;height:100%;background:#eecbc8;"></div>
+            </div>
+            <p>云想衣裳花想容，<br>
+            春风拂槛露华浓。<br>
+            （此处可放美照）</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>游历山川</h2>
+        <div class="card-content">
+            <div class="circle-frame">
+                 <!-- Placeholder for image -->
+                 <div style="width:100%;height:100%;background:#b0c4de;"></div>
+            </div>
+            <p>世界之大，<br>
+            愿与君携手共赏。<br>
+            踏遍千山万水。</p>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 皇后的御用花园 | Chhuang 敬呈</p>
+</footer>
+
+<script>
+    // Simple petal generator
+    function createPetal() {
+        const petal = document.createElement('div');
+        petal.classList.add('petal');
+        petal.style.left = Math.random() * 100 + 'vw';
+        petal.style.animationDuration = Math.random() * 5 + 5 + 's';
+        petal.style.animationDelay = Math.random() * 5 + 's';
+        document.body.appendChild(petal);
+        
+        // Remove after animation to save memory
+        setTimeout(() => {
+            petal.remove();
+        }, 10000);
+    }
+
+    // Generate petals periodically
+    setInterval(createPetal, 800);
+</script>
+
+</body>
+</html>
